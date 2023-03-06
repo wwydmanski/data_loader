@@ -3,6 +3,7 @@
 This is a simple script for creating preprocessed pytorch datasets out of commonly used datasets.
 
 ## Available datasets
+ - MNIST
  - TUANDROMD
  - BreastCancer
  - letter
@@ -11,4 +12,6 @@ This is a simple script for creating preprocessed pytorch datasets out of common
  - Bioresponse
  - EyeMovements
  - Cleveland
-
+ - Ionosphere
+ - Libras
+ - Lympography

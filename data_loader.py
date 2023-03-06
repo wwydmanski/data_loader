@@ -5,14 +5,54 @@ import numpy as np
 import pandas as pd
 import torch
 import torchvision
+import torchvision.transforms as transforms
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder, StandardScaler
 from torch.utils import data
 import datasets
+from typing import Tuple
 
-def load_dataset(dataset_name):
-    if  dataset_name == 'TUANDROMD':
+def load_dataset(dataset_name) -> Tuple[data.Dataset, data.Dataset]:
+    """
+    Load dataset. 
+    :param dataset_name: name of the dataset. One of:
+        - MNIST
+        - TUANDROMD
+        - BlogFeedback
+        - BreastCancer
+        - reuters
+        - letter
+        - ColorectalCarcinoma
+        - ColorectalCarcinomaCLR
+        - Bioresponse
+        - EyeMovements
+        - Ionosphere
+        - Libras
+        - Lymphography
+    :return: train_dataset, test_dataset
+
+    """
+    if dataset_name == 'MNIST':
+        dataset = datasets.load_dataset("mnist")
+        
+        X_ = [torch.from_numpy(np.asarray(i)) for i in dataset['train'][:-1]['image']]
+        X = torch.stack(X_).to(torch.float32)
+        y = [torch.from_numpy(np.asarray(i)) for i in dataset['train'][:-1]['label']]
+        y = torch.stack(y)
+        
+        mods = [transforms.Normalize((X.mean()), (X.std())),    #mean and std of MNIST
+            transforms.Lambda(lambda x: torch.flatten(x, 1))]
+
+        mods = transforms.Compose(mods)
+        X = mods(X)
+        X_train, X_test, y_train, y_test = train_test_split(X.to(float), y.to(int), random_state=42)
+
+        train_dataset = data.TensorDataset(torch.tensor(np.array(X_train)).type(torch.FloatTensor), torch.tensor(np.array(y_train)))
+        test_dataset = data.TensorDataset(torch.tensor(np.array(X_test)).type(torch.FloatTensor), torch.tensor(np.array(y_test)).type(torch.FloatTensor))
+        return train_dataset, test_dataset
+
+    if dataset_name == 'TUANDROMD':
         CSV_URL = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00622/TUANDROMD.csv'
         with requests.Session() as s:
             download = s.get(CSV_URL)
@@ -191,6 +231,43 @@ def load_dataset(dataset_name):
         y = df.pop(13).values
         X = df.values
 
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+        train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Ionosphere":
+        ionosphere = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data', header=None)
+        ionosphere = ionosphere.drop(1, axis=1)
+        X = ionosphere.values[:, :-1].astype(float)
+        y = ionosphere.values[:, -1]
+        y = LabelEncoder().fit_transform(y).astype(int)
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+        train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Libras":
+        libras = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/libras/movement_libras.data', header=None)
+        X = libras.values[:, :-1].astype(float)
+        y = libras.values[:, -1].astype(int)
+        y -= 1
+        #(360, 90) 15
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+        train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Lymphography":
+        lymphography = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/lymphography/lymphography.data', header=None)
+        X = lymphography.values[:, 1:].astype(float)
+        y = lymphography.values[:, 0].astype(int)
+        y -= 1
+        #(148, 18) 4
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
         train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
