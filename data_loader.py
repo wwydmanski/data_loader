@@ -30,8 +30,11 @@ def load_dataset(dataset_name) -> Tuple[data.Dataset, data.Dataset]:
         - Ionosphere
         - Libras
         - Lymphography
-    :return: train_dataset, test_dataset
+        - Sonar
+        - Dermatology
+        - Glass
 
+    :return: train_dataset, test_dataset
     """
     if dataset_name == 'MNIST':
         dataset = datasets.load_dataset("mnist")
@@ -119,13 +122,12 @@ def load_dataset(dataset_name) -> Tuple[data.Dataset, data.Dataset]:
         return train_dataset, test_dataset
 
     elif dataset_name == 'reuters':
-        train_dataset = np.load('datasets/reuters/reutersidf10k_train.npy', allow_pickle=True)
-        test_dataset = np.load('datasets/reuters/reutersidf10k_test.npy', allow_pickle=True)
+        ds = datasets.load_dataset("wwydmanski/reuters10k")
 
-        X_train = train_dataset.item()['data']
-        Y_train = train_dataset.item()['label']
-        X_test = test_dataset.item()['data']
-        Y_test = test_dataset.item()['label']
+        X_train = np.array(ds['train']['features'])
+        Y_train = np.array(ds['train']['label'])
+        X_test = np.array(ds['test']['features'])
+        Y_test = np.array(ds['test']['label'])
 
         scaler = MinMaxScaler()
         X_train = scaler.fit_transform(X_train)
@@ -244,7 +246,7 @@ def load_dataset(dataset_name) -> Tuple[data.Dataset, data.Dataset]:
         y = ionosphere.values[:, -1]
         y = LabelEncoder().fit_transform(y).astype(int)
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y, train_size=0.7)
 
         train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
         test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test))
@@ -256,7 +258,7 @@ def load_dataset(dataset_name) -> Tuple[data.Dataset, data.Dataset]:
         y = libras.values[:, -1].astype(int)
         y -= 1
         #(360, 90) 15
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y, train_size=0.7)
 
         train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
         test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test))
@@ -268,8 +270,39 @@ def load_dataset(dataset_name) -> Tuple[data.Dataset, data.Dataset]:
         y = lymphography.values[:, 0].astype(int)
         y -= 1
         #(148, 18) 4
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y, train_size=0.7)
 
+        train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Sonar":
+        dataset = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data", header=None)
+        X = dataset.values[:, :-1].astype(float)
+        y = dataset.values[:, -1]
+        y = LabelEncoder().fit_transform(y)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y, train_size=0.7)
+        train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Dermatology":
+        dataset = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/dermatology/dermatology.data", header=None, na_values="?").dropna()
+        X = dataset.values[:, :-1].astype(float)
+        y = dataset.values[:, -1].astype(int)
+        y = LabelEncoder().fit_transform(y).astype(int)
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y, train_size=0.7)
+        train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Glass":
+        dataset = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/glass/glass.data", header=None, na_values="?").dropna()
+        X = dataset.values[:, :-1].astype(float)
+        y = dataset.values[:, -1].astype(int)
+        y = LabelEncoder().fit_transform(y).astype(int)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y, train_size=0.7)
         train_dataset = data.TensorDataset(torch.tensor(X_train).type(torch.FloatTensor), torch.tensor(y_train))
         test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test))
 
