@@ -4,7 +4,6 @@ import requests
 import numpy as np
 import pandas as pd
 import torch
-import torchvision
 import torchvision.transforms as transforms
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
@@ -13,7 +12,6 @@ from torch.utils import data
 import datasets
 from typing import Tuple
 import openml
-from ucimlrepo import fetch_ucirepo 
 import zipfile
 from io import StringIO
 import tempfile
