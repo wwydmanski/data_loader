@@ -16,6 +16,7 @@ import zipfile
 from io import StringIO
 import tempfile
 import requests
+from ucimlrepo import fetch_ucirepo 
 
 def load_dataset(dataset_name) -> Tuple[data.Dataset, data.Dataset]:
     """
@@ -44,6 +45,14 @@ def load_dataset(dataset_name) -> Tuple[data.Dataset, data.Dataset]:
         - Sonar
         - Dermatology
         - Glass
+        - Adult
+        - Helena
+        - Parkinsons
+        - Haberman
+        - Vertebral
+        - Ecoli
+        - Voting
+
 
     :return: train_dataset, test_dataset
     """
@@ -519,6 +528,102 @@ def load_dataset(dataset_name) -> Tuple[data.Dataset, data.Dataset]:
 
         train_dataset = data.TensorDataset(X_train_tensor, y_train_tensor)
         test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test.values).type(torch.FloatTensor))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Haberman":
+        haberman_s_survival = fetch_ucirepo(id=43) 
+        
+        # data (as pandas dataframes) 
+        X = haberman_s_survival.data.features 
+        y = haberman_s_survival.data.targets 
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
+        labelEncoder = LabelEncoder()
+        y_train = labelEncoder.fit_transform(y_train)
+        y_test = labelEncoder.transform(y_test)
+
+        X_train_tensor = torch.tensor(X_train).type(torch.FloatTensor)
+        y_train_tensor = torch.tensor(y_train).type(torch.FloatTensor)
+
+        train_dataset = data.TensorDataset(X_train_tensor, y_train_tensor)
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test).type(torch.FloatTensor))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Vertebral":
+        haberman_s_survival = fetch_ucirepo(id=212) 
+        
+        # data (as pandas dataframes) 
+        X = haberman_s_survival.data.features 
+        y = haberman_s_survival.data.targets 
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
+        labelEncoder = LabelEncoder()
+        y_train = labelEncoder.fit_transform(y_train)
+        y_test = labelEncoder.transform(y_test)
+
+        X_train_tensor = torch.tensor(X_train).type(torch.FloatTensor)
+        y_train_tensor = torch.tensor(y_train).type(torch.FloatTensor)
+
+        train_dataset = data.TensorDataset(X_train_tensor, y_train_tensor)
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test).type(torch.FloatTensor))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Ecoli":
+        haberman_s_survival = fetch_ucirepo(id=39) 
+        
+        # data (as pandas dataframes) 
+        X = haberman_s_survival.data.features 
+        y = haberman_s_survival.data.targets 
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
+        labelEncoder = LabelEncoder()
+        y_train = labelEncoder.fit_transform(y_train)
+        y_test = labelEncoder.transform(y_test)
+
+        X_train_tensor = torch.tensor(X_train).type(torch.FloatTensor)
+        y_train_tensor = torch.tensor(y_train).type(torch.FloatTensor)
+
+        train_dataset = data.TensorDataset(X_train_tensor, y_train_tensor)
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test).type(torch.FloatTensor))
+
+        return train_dataset, test_dataset
+    elif dataset_name == "Voting":
+        haberman_s_survival = fetch_ucirepo(id=105) 
+        
+        # data (as pandas dataframes) 
+        X = haberman_s_survival.data.features 
+        y = haberman_s_survival.data.targets 
+
+        le = LabelEncoder()
+        X = X.apply(le.fit_transform)
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+        labelEncoder = LabelEncoder()
+        y_train = labelEncoder.fit_transform(y_train)
+        y_test = labelEncoder.transform(y_test)
+        
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
+        X_train_tensor = torch.tensor(X_train).type(torch.FloatTensor)
+        y_train_tensor = torch.tensor(y_train).type(torch.FloatTensor)
+
+        train_dataset = data.TensorDataset(X_train_tensor, y_train_tensor)
+        test_dataset = data.TensorDataset(torch.tensor(X_test).type(torch.FloatTensor), torch.tensor(y_test).type(torch.FloatTensor))
 
         return train_dataset, test_dataset
     else:
